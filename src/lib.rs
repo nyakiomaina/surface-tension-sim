@@ -4,7 +4,7 @@ use serde_wasm_bindgen;
 use js_sys;
 use web_sys::console;
 
-// Initialize panic hook for better error messages
+
 #[wasm_bindgen(start)]
 pub fn main_js() {
     console_error_panic_hook::set_once();
@@ -42,8 +42,8 @@ impl Simulation {
         }
         Simulation {
             particles,
-            dt: 0.05, // Increased time step
-            surface_tension: 10.0, // Amplified surface tension
+            dt: 0.05,
+            surface_tension: 10.0,
         }
     }
 
@@ -53,17 +53,16 @@ impl Simulation {
 
     pub fn step(&mut self) {
         let len = self.particles.len();
-        let epsilon = 1.0; // Depth of the potential well
-        let sigma = 10.0; // Finite distance at which the inter-particle potential is zero
+        let epsilon = 1.0;
+        let sigma = 10.0;
 
         for i in 0..len {
             for j in (i + 1)..len {
                 let dx = self.particles[j].x - self.particles[i].x;
                 let dy = self.particles[j].y - self.particles[i].y;
-                let distance_sq = dx * dx + dy * dy + 0.01; // Avoid division by zero
+                let distance_sq = dx * dx + dy * dy + 0.01;
                 let distance = distance_sq.sqrt();
 
-                // Lennard-Jones force
                 let force_scalar = 48.0 * epsilon * (Self::powi(sigma / distance, 12) - 0.5 * Self::powi(sigma / distance, 6)) / distance_sq;
 
                 let fx = force_scalar * dx;
@@ -76,12 +75,10 @@ impl Simulation {
             }
         }
 
-        // Update positions based on velocities
         for p in &mut self.particles {
             p.x += p.vx * self.dt;
             p.y += p.vy * self.dt;
 
-            // Simple boundary conditions
             if p.x < 0.0 {
                 p.x = 0.0;
                 p.vx *= -0.5;
@@ -100,7 +97,6 @@ impl Simulation {
             }
         }
 
-        // Log the first particle's position and velocity for debugging
         if let Some(first) = self.particles.first() {
             let log_message = format!(
                 "Particle 0 - Position: ({:.2}, {:.2}), Velocity: ({:.2}, {:.2})",
